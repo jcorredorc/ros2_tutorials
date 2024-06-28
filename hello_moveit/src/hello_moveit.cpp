@@ -42,18 +42,22 @@ int main(int argc, char * argv[])
 
 
   // Create closures for visualization
-auto const draw_title = [&moveit_visual_tools](auto text) {
-  auto const text_pose = [] {
-    auto msg = Eigen::Isometry3d::Identity();
-    msg.translation().x() = 2.0;  // Place text 1m above the world
-    return msg;
-  }();
-  moveit_visual_tools.publishText(text_pose, text, rviz_visual_tools::WHITE,
-                                  rviz_visual_tools::XLARGE);
-};
+  auto const draw_title = [&moveit_visual_tools](auto text) {
+    auto const text_pose = [] {
+      auto msg = Eigen::Isometry3d::Identity();
+      msg.translation().x() = 1;  // Place text 1m x the world
+      msg.translation().z() = 1;  // Place text 1m above the world
+      return msg;
+    }();
+
+    moveit_visual_tools.publishText(text_pose, text, rviz_visual_tools::WHITE,
+                                    rviz_visual_tools::XLARGE);
+  };
+
 auto const prompt = [&moveit_visual_tools](auto text) {
   moveit_visual_tools.prompt(text);
 };
+
 auto const draw_trajectory_tool_path =
     [&moveit_visual_tools,
      jmg = move_group_interface.getRobotModel()->getJointModelGroup(
@@ -82,6 +86,7 @@ auto const draw_trajectory_tool_path =
 
 // Execute the plan
 if(success) {
+  prompt("Press 'Next' in the RvizVisualToolsGui window to execute");
   draw_trajectory_tool_path(plan.trajectory_);
   moveit_visual_tools.trigger();
   draw_title("Executing");
